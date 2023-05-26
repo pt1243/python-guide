@@ -19,10 +19,10 @@ This document covers the process of *correctly* installing Python, and how best 
 
 If you already have Python installed, it's probably best that you reinstall it following these instructions. All that you will need to do is export your current list of installed packages (~30 seconds), download and reinstall Python (~2 minutes), point VS Code (or any other IDE's you use) to the new Python locations (~30 seconds), and finally reinstall your packages (~30 seconds plus however long they take to download). All in all, a few minutes of work now can easily save you many times that debugging things in the future.
 
-Let's assume that the version you want to reinstall is `3.X` (so if you were reinstalling Python 3.11, use `3.11`).
+Let's assume that the version you want to reinstall is `3.X` (so if you were reinstalling Python 3.11, use `3.11`; similarly, replace `requirements3X.txt` with `requirements311.txt`).
 
 1. Open a terminal (cmd or PowerShell) and run `py -0p`. This lists all the versions you have installed, and their paths. Make a note of the directory that the Python executable is installed into (`<install path>`). 
-   - If your version isn't listed here, that means you screwed up when you initially installed it, and Python has no idea that it even exists. In that case, just manually delete any files related to that version that you can find (you may find them in `C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python`).
+   - If your version isn't listed here, that means you screwed up when you initially installed it, and Python has no idea that it even exists. In that case, just manually delete any files related to that version that you can find (you may find them in `C:\Users\%USERNAME%\AppData\Local\Programs\Python\`, or `C:\Program Files\Python 3X\`).
 2. Export your list of currently installed packages by running `py -3.X -m pip freeze > requirements3X.txt`, which saves them to the file `requirements3X.txt` in your current directory.
 3. In the Windows Settings under `Apps > Installed Apps`, find the appropriate Python version and uninstall it. This should open the Python installer window, where you can then select `Uninstall`.
    - If this doesn't work for any reason, you can also try manually deleting everything. Also ensure that you remove the path to this installation from your system `PATH`. Search for `Edit the system environment variables`, or run `SystemPropertiesAdvanced.exe` from the Windows Run command dialog box or through a terminal. Click `Environment variables...`. Double-click on the `Path` variables for both your user account *and* the system. Look for `<install path>\` and `<install path>\Scripts\` and remove them. Make sure you don't remove entries for *other* Python versions, because then you won't be able to repeat these steps for them afterwards.
@@ -62,22 +62,23 @@ You may have noticed that in all the instructions above, we've used `py` instead
 
 This presents a problem if there are multiple versions of the same executable (in this case, `python.exe`) on the system. Because only the first executable is run, whichever Python version happens to be first in the `PATH` entries will be run. *Usually*, this is the most recently installed version, which is *usually* the latest Python version. However, depending on which order you installed different Python version in, you will end up running different Python versions - hardly desirable behaviour.
 
-To deal with this, Python has a specific program, the *Python launcher for Windows* which is installed as a separate app. It's purpose is to use various heuristics to determine which installed Python version should be used to execute a specific Python command.
+To deal with this, Python has a specific program, the *Python launcher for Windows*, which is installed as a separate app. It's purpose is to use various heuristics to determine which installed Python version should be used to execute a specific Python command.
 
 Running `py -0p` lists all the Python versions the launcher can find in order of preference, along with their paths; `py -0` will do the same but without the paths. For example, if you have Python 3.8 through to 3.11 installed, you should see something like this:
 
 ```
-> py -0p
+C:\> py -0p
  -V:3.11 *        C:\Program Files\Python311\python.exe
  -V:3.10          C:\Program Files\Python310\python.exe
  -V:3.9           C:\Program Files\Python39\python.exe
  -V:3.8           C:\Program Files\Python38\python.exe
+ -V:3.7           C:\Program Files\Python37\python.exe
 ```
 
 Note that the `*` denotes the default Python version, and so running `py` without any additional arguments will take you straight to the usual Python REPL:
 
 ```
-> py
+C:\> py
 Python 3.11.0 (main, Oct 24 2022, 18:26:48) [MSC v.1933 64 bit (AMD64)] on win32
 Type "help", "copyright", "credits" or "license" for more information.
 >>>
@@ -86,21 +87,21 @@ Type "help", "copyright", "credits" or "license" for more information.
 To choose another version instead, we simply add the `-3.X` argument to run Python version `3.X`:
 
 ```
-> py -3.8
+C:\> py -3.8
 Python 3.8.9 (tags/v3.8.9:a743f81, Apr  6 2021, 14:02:34) [MSC v.1928 64 bit (AMD64)] on win32
 Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-By setting the environment variable `PYLAUNCHER_DRYRUN` to any value, we can see what command the launcher is executing under the hood, which is explicitly specifying the full path to the desired Python executable:
+By setting the environment variable `PYLAUNCHER_DRYRUN` to any value, we can see what command the launcher is executing under the hood, which is simply explicitly specifying the full path to the desired Python executable:
 
 ```
-> set PYLAUNCHER_DRYRUN=1
+C:\> set PYLAUNCHER_DRYRUN=1
 
-> py
+C:\> py
 "C:\Program Files\Python311\python.exe"
 
-> py -3.8
+C:\> py -3.8
 "C:\Program Files\Python38\python.exe"
 ```
 
@@ -116,6 +117,6 @@ This is useful, but the most useful feature is specifying which version to insta
 - Follow the instructions above to [correctly download and install Python](#download-and-installation).
 - Use the Python launcher `py` to specify which Python version should be used to run a command:
   - `py -0p` lists the installed Python versions and their paths.
-  - `py` runs the default version's `python.exe` and enter the usual REPL.
+  - `py` runs the default version's `python.exe` and enters the usual REPL.
   - `py -3.X` enters the REPL for version `3.X`.
   - `py -3.X -m pip install <package>` installs `<package>` for version `3.X`.

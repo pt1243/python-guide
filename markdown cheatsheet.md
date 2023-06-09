@@ -1,4 +1,6 @@
-<h1 align='center'> Overview of Markdown formatting (title)</h1>
+<h1 align='center'> Overview of Markdown formatting</h1>
+
+Note the title uses HTML `h1` tags to center align the text.
 
 # H1 (top level section)
 
@@ -14,10 +16,12 @@
 
 ## Paragraph formatting
 
-Paragraph formed by line breaks.
-This does nothing
+Paragraphs are separated by blank lines.
+This does nothing.
 
 This, however, starts a new paragraph.
+
+<!-- Comments are written like this. -->
 
 > Quote using angle brackets. 
 > Similar to paragraphs, this continues the same paragraph.
@@ -76,7 +80,7 @@ Text can have footnotes[^1].
 
 | One column | A second column | A third column |
 | :--- | :---: | ---: |
-Some text in a column that is left aligned. | Some center aligned text. | Some right alighned text. |
+Some text in a column that is left aligned. | Some center aligned text. | Some right aligned text. |
 
 ## Other formatting
 
@@ -125,6 +129,3 @@ graph TD;
     B-->D;
     C-->D;
 ```
-
-<!-- comments are written like this. -->
-

@@ -1,6 +1,7 @@
 <h1 align='center'>Installing and Managing Python</h1>
 
-<h6 align='center'>How to avoid creating problems for your future self</h6>
+<!-- <h6 align='center'>How to avoid creating problems for your future self</h6> -->
+<!-- TODO: better subtitle -->
 
 This document covers the process of *correctly* installing Python, and how best to manage multiple Python versions. This may seem overly simple for an "intermediate" Python guide, but an incorrect Python installation is bound to cause headaches in the future.
 
@@ -21,7 +22,7 @@ If you already have Python installed, it's probably best that you reinstall it f
 
 Let's assume that the version you want to reinstall is `3.X` (so if you were reinstalling Python 3.11, use `3.11`; similarly, replace `requirements3X.txt` with `requirements311.txt`).
 
-1. Open a terminal (cmd or PowerShell) and run `py -0p`. This lists all the versions you have installed, and their paths. Make a note of the directory that the Python executable is installed into (`<install path>`). 
+1. Open a terminal (`cmd` or `PowerShell`) and run `py -0p`. This lists all the versions you have installed, and their paths. Make a note of the directory that the Python executable is installed into (`<install path>`). 
    - If your version isn't listed here, that means you screwed up when you initially installed it, and Python has no idea that it even exists. In that case, just manually delete any files related to that version that you can find (you may find them in `C:\Users\%USERNAME%\AppData\Local\Programs\Python\`, or `C:\Program Files\Python 3X\`).
 2. Export your list of currently installed packages by running `py -3.X -m pip freeze > requirements3X.txt`, which saves them to the file `requirements3X.txt` in your current directory.
 3. In the Windows Settings under `Apps > Installed Apps`, find the appropriate Python version and uninstall it. This should open the Python installer window, where you can then select `Uninstall`.
@@ -62,7 +63,7 @@ You may have noticed that in all the instructions above, we've used `py` instead
 
 This presents a problem if there are multiple versions of the same executable (in this case, `python.exe`) on the system. Because only the first executable is run, whichever Python version happens to be first in the `PATH` entries will be run. *Usually*, this is the most recently installed version, which is *usually* the latest Python version. However, depending on which order you installed different Python version in, you will end up running different Python versions - hardly desirable behaviour.
 
-To deal with this, Python has a specific program, the *Python launcher for Windows*, which is installed as a separate app. It's purpose is to use various heuristics to determine which installed Python version should be used to execute a specific Python command.
+To deal with this, Python has a specific program, the *Python launcher for Windows*, invoked with the `py` command. It is installed as a separate app, and its purpose is to use various heuristics to determine which installed Python version should be used to execute a specific Python command.
 
 Running `py -0p` lists all the Python versions the launcher can find in order of preference, along with their paths; `py -0` will do the same but without the paths. For example, if you have Python 3.8 through to 3.11 installed, you should see something like this:
 
@@ -112,6 +113,8 @@ This is useful, but the most useful feature is specifying which version to insta
 "C:\Program Files\Python39\python.exe" -m pip list
 ```
 
+Note that most Python resources (including the documentation) will simply use `python` for compatability for other operating systems. For consistency, **this tutorial will use `python` in all other documents, but this should always be substituted for the appropriate `py -3.X` command unless mentioned**.
+
 ## Summary
 
 - Follow the instructions above to [correctly download and install Python](#download-and-installation).
@@ -120,3 +123,4 @@ This is useful, but the most useful feature is specifying which version to insta
   - `py` runs the default version's `python.exe` and enters the usual REPL.
   - `py -3.X` enters the REPL for version `3.X`.
   - `py -3.X -m pip install <package>` installs `<package>` for version `3.X`.
+- This tutorial will use `python` for consistency with other resources, but this should always be substituted for `py -3.X`.

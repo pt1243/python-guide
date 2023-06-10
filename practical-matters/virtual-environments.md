@@ -19,7 +19,11 @@ The design of Python and its packaging systems means that installed packages are
 
 A (not unreasonable) solution you might come to this is to simply continue adding packages to your system installation as needed for different various projects. When you inevitably run into issues with conflicting dependencies, you may be tempted to create a new system-wide installation to use. Over time, that gets you into problems; as [this relevant XKCD (#1987)](https://xkcd.com/1987/) shows, it won't be long before your Python installations degrade into an entangled, inseparable mess:
 
-![XKCD #1987](https://imgs.xkcd.com/comics/python_environment.png)
+<p align="center">
+
+<img src="https://imgs.xkcd.com/comics/python_environment.png">
+
+</p>
 
 ### The solution
 

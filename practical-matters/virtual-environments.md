@@ -6,139 +6,151 @@ This document covers how to use virtual environments to manage your Python insta
 
 **Table of Contents:**
 - [Introduction and motivation](#introduction-and-motivation)
-  - [The solution](#the-solution)
+  - [An overview of virtual environments](#an-overview-of-virtual-environments)
 - [Creating and using virtual environments](#creating-and-using-virtual-environments)
+  - [Using virtualenv](#using-virtualenv)
   - [Using the venv module](#using-the-venv-module)
   - [Using VS Code](#using-vs-code)
+- [Technical overview](#technical-overview)
 - [Summary](#summary)
 
 
 ## Introduction and motivation
 
-The design of Python and its packaging systems means that installed packages are kept in the file system alongside the Python interpreter executable; this means that only one version of a given package may be installed with a given Python installation. This causes issues when different projects sharing the installation have conflicting package requirements.
+The design of Python and its packaging systems means that installed packages (i.e., libraries) are kept in the file system alongside the Python interpreter executable; this means that only one version of a given package may be installed with a given Python installation. This causes issues when different projects sharing the installation have conflicting package requirements.
 
-### The solution
+### An overview of virtual environments
 
-The answer to this is the use of *virtual environments*. The [Python documentation](https://docs.python.org/3/tutorial/venv.html) has a good overview of what a virtual environment is:
+The answer to this is the use of *virtual environments*. The [Python tutorial on virtual environments](https://docs.python.org/3/tutorial/venv.html) has a good overview of what a virtual environment is:
 
 > A self-contained directory tree that contains a Python installation for a particular version of Python, plus a number of additional packages.
 
-Essentially, a virtual environment allows you to create a separate, "clean" Python installation that contains its own, independent collection of packages for a specific Python version. Using virtual environments will help resolve some of the following issues, which you may have encountered:
+Essentially, a virtual environment allows you to create a separate, "clean" Python installation that contains its own, independent collection of packages for a specific Python version. They are useful for:
 
-- Project A requires an earlier version of a library, but a new project that you have quickly thrown together, B, requires a new version due to incompatible library changes. Either you go through the process of redownloading the Python installer and creating an entire new Python installation for what was supposed to be a quick and easy new project, or you break project A's functionality by upgrading the library.
-- You upgrade a library to a new version, but you have no idea which existing projects sharing that interpreter depend on functionality from the previous library version. Other than testing each one individually, you will most likely not discover any problems until some time down the road when you try and run one of them and it unexpectedly breaks.
-- Without going through the process of checking each installed library (potentially hundreds) for updates, and validating new versions of each against every existing project, you are stuck with whatever versions you installed at the time. This means you may be missing out on bugfixes, performance improvements, or other useful changes.
-- You want to clean up your installed packages and remove those which are no longer in use, but without reviewing every project's dependencies, it is impossible to know which are in use and which are safe to remove.
-- You are sharing code with other users and they have different versions of the project dependencies installed. At best, this may outright throw an error and inform you of the problem; at worst, the code will run without errors, but may produce subtly different wrong results.
+- Avoiding dependency conflicts between different projects. If project A requires `some-library` version 1 and is incompatible with version 2, but project B requires a minimum of version 2 of `some-library`, it is not possible to maintain a consistent environment state that can meet the requirements of both projects.
+- Maintaining the correct versions of packages for different projects. It is possible that multiple projects can coexist and share a set of packages. However, when you want to later update the packages (perhaps for bugfixes, performance improvements, or other useful changes), it becomes almost impossible to know what projects will be impacted. At worst, some code may silently exhibit unintended behaviour and result in incorrect results that appear to be correct.
+- Explicitly specificing project dependencies. When working from the system-wide Python installations, it is very easy to import some package and forget to include it in the dependencies. Your local copy of the project will work fine, but any other users will encounter issues even if they install the listed dependencies correctly.
 
-It should be clear that independent virtual environments are a necessity as you begin to work with more complex and varied Python projects.
+It should be clear that independent virtual environments are a necessity as you begin to work with a range of complex and varied Python projects.
 
-Of course, there is no need to go to the complete opposite extreme: projects that use only the standard library modules, simple scripts thrown together for a single use application, or other basic utilities with extremely simple dependency requirements don't necessitate creating a virtual environment for; using the system environment is perfectly fine. A good rule of thumb is to *create an environment for any project that you expect to reuse and maintain, that you are collaborating on with others, that has complex dependencies, or is complex enough to require multiple files of Python code*.
+Of course, there is no need to go to the complete opposite extreme: projects that use only the standard library modules, simple scripts thrown together for a single use application, or other basic utilities with extremely simple dependency requirements don't necessitate creating a virtual environment; using the system environment is perfectly fine. A good rule of thumb is to *create an environment for any project that you expect to reuse and maintain, that you are collaborating on with others, that has complex dependencies, or is complex enough to require multiple files of Python code*.
 
-I would recommend therefore keeping a small collection of packages installed in your system environment for when you need to run quick command line/IDLE experimentation, and only create virtual environments for more complex projects.
-
-<details>
-
-<summary>As an example, here are the packages that I keep installed in each of my system environments:</summary>
-
-- `numpy` for efficient array operations and mathematical data processing.
-- `scipy` for other general-purpose scientific computing.
-- `pandas` for data storage and manipulation.
-- `matplotlib` for graphing and visualising data.
-- `flake8` for linting.
-- `mypy` for type checking.
-- `black` for code formatting.
-- `pytest` to run tests.
-- `attrs` for an alternative to the standard library `dataclass`.
-- `notebook` for Jupyter Notebooks.
-- `ipython` for the interactive Python kernel (what powers the "cells" in Jupyter notebooks).
-- `wheel` for building packages.
-
-While the dependencies for all of these do add up to a large collection of installed packages (over 100, most from `notebook`), the important thing is that there are few complex dependency relationships, and any small scripts I run using these libraries is not dependent on their version.
-
-Do note that these packages are specific to my use case, and the Python code I write most often involves these libraries. For someone else who often writes quick scripts for HTTP requests, the `requests` library would be an obvious candidate for a system-wide package, while mathematically oriented libraries like NumPy and SciPy would probably not be justified.
-
-</details>
+I would recommend therefore keeping a small collection of packages installed in your system environment for when you need to run quick command line/IDLE experimentation, and only create virtual environments for more complex projects. I personally have `numpy`, `scipy`, and `pandas` if I want to check some small code snippet or verify some behaviour; `black`, `flake8`, and `pytest` for running these tools without installing them for small projects; and `notebook` and `ipython` for running Jupyter notebooks, or for using IPython magic functions. Note that for a specific project using Jupyter notebooks should have its own virtual environment - the system-wide version is just for opening files for an initial inspection.
 
 ## Creating and using virtual environments
 
-### Using the venv module
+A virtual environment exists in a directory, typically either `.venv` or `venv`, at the root of a project. They are excluded from version control systems such as Git, and are considered disposable - i.e., it should be simply to delete it and recreate it from scratch (such as through a `requirements.txt` file), and project code is not placed in the environment. They are also not copyable or movable once created, as some of the resulting configuration files include hardcoded paths to the interpreter in the virtual environment.
 
-The creation of virtual environments is handled by the `venv` standard library module. This can be done as follows:
+A further discussion of how virtual environments work is present below in the [technical overview](#technical-overview), but in short, the virtual environment maintains its own copy of a Python interpreter (the actual executable that runs Python) and related installed packages, independent from the system-wide installation packages and other virtual environments.
+
+Once created, a virtual environment should be "activated", which prepends the virtual environment's interpreter and related scripts to the system `PATH`; this means that running commands such as `python` or `pip` will match against and run through the virtual environment's interpreter instead of the system-wide installations. The virtual environment includes several platform-specific activation scripts in the binary directory (`bin` on POSIX, and `Scripts` on Windows). When run, the script will:
+
+1. Prepend the virtual environment's binary directory to the system `PATH`.
+2. Add a prompt, typically `(.venv)` or similar, to the beginning of the terminal prompt as an indication that the virtual environment is activated.
+3. Add a `deactivate` command which can be run to deactivate the environment and return to the default behaviour.
+
+Activating an environment can be done with the following commands, depending on the platform. The virtual environment directory is assumed to be named `.venv`; if this is not the case, replace it with the actual name.
+
+<table>
+    <thead>
+        <tr>
+            <th>Platform</th>
+            <th>Shell</th>
+            <th>Activation command</th>
+            <th>Deactivation command</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Windows</td>
+            <td>cmd or PowerShell</td>
+            <td><code>.venv\scripts\activate</code></td>
+            <td rowspan=3><code>deactivate</code></td>
+        </tr>
+        <tr>
+            <td rowspan=2>POSIX (macOS or Linux)</td>
+            <td>bash or zsh</td>
+            <td><code>. .venv/bin/activate</code>, or <code>source .venv/bin/activate</code></td>
+        </tr>
+        <tr>
+            <td>Other shells</td>
+            <td>See <a href="https://docs.python.org/3/library/venv.html#how-venvs-work">this table</a> in the Python docs</td>
+        </tr>
+    </tbody>
+</table>
+
+Do note that the activation script for cmd is `activate.bat`, and for PowerShell it is `activate.ps1`; the shells will match against files with these extensions. On the other hand, the script for bash and zsh is actually called `activate` with no extension.
+
+Once the environment is activated, it will also take precedence in the Python launcher for Windows. This is indicated as a standalone `*` in the list of interpreters:
 
 ```
-python -m venv <environment name>
-```
-<!-- TODO: check for consistent command line syntax (eg. angle brackets, square brackets, caps, etc) -->
-
-Note that as with the rest of this guide, `python` should be substituted for the appropriate `py -3.X` on Windows to use the appropriate Python version. This also allows the creation of virtual environments for any system environments you have installed; for this reason, it may be useful to multiple versions installed on your system. I personally have Python 3.7 to 3.11 installed, as they are the currently supported Python versions.
-
-The `-m` flag invokes the Python module `venv` (more explanation of this is available in the document about [command line options](/practical-matters/command-line-usage-and-pip.md)). This creates a new environment within the `environment name` folder in the current directory. While this can be any name you want, by convention this is usually called `.venv` to indicate to others that it is a virtual environment folder and should not be manually modified. This also has the advantage that most `.gitignore` templates should ignore this, and the leading period treats the folder as "hidden" in certain circumstances (e.g., when running certain commands on Linux).
-
-Therefore, for practical use, assume we have some Python project located in the folder `some-python-project\`. We would create a Python 3.11 virtual environment with the following command:
-
-```
-D:\some-python-project> py -3.11 -m venv .venv
-```
-
-This creates the folder `some-python-project\.venv\` and installs a new copy of the Python 3.11 interpreter there.
-
-The next step after creating an environment is to *activate* it. Activating an environment sets the appropriate environment variables to ensure that subsequent Python commands point to the newly created installation. This is done by running the following script:
-
-```
-D:\some-python-project> .venv\Scripts\activate 
-
-(.venv) D:\some-python-project> 
-```
-
-Note how after activating the environment, the terminal prompt is preceded by `(.venv)`. This indicates that the virtual environment present in `.venv` has been successfully activated. Running `py -0p` shows that the Python launcher is now aware of the environment and has selected it as the default:
-
-```
-(.venv) D:\some-python-project> py -0p
-  *               D:\some-python-project\.venv\Scripts\python.exe
+D:\project-folder>py -0p
+ -V:3.12 *        C:\Program Files\Python312\python.exe
  -V:3.11          C:\Program Files\Python311\python.exe
  -V:3.10          C:\Program Files\Python310\python.exe
  -V:3.9           C:\Program Files\Python39\python.exe
  -V:3.8           C:\Program Files\Python38\python.exe
- -V:3.7           C:\Program Files\Python37\python.exe
+
+D:\project-folder>.venv\scripts\activate
+
+(.venv) D:\project-folder>py -0p
+  *               D:\project-folder\.venv\Scripts\python.exe
+ -V:3.12          C:\Program Files\Python312\python.exe
+ -V:3.11          C:\Program Files\Python311\python.exe
+ -V:3.10          C:\Program Files\Python310\python.exe
+ -V:3.9           C:\Program Files\Python39\python.exe
+ -V:3.8           C:\Program Files\Python38\python.exe
 ```
 
-The activation script also sets the appropriate environment variables that running `python` or `pip` commands will point to the correct executables in the environment. Running `pip list` to list the installed packages now correctly shows that only the basic `pip` and `setuptools` packages are installed to bootstrap the environment:
+It should be noted that activating a virtual environment is not required to use it; it is always possible to specify the paths to the virtual environment's executables directly. You should get into the habit of immediately activating the virtual environment for a project as soon as you open it to use it or work on it. Some editors such as VS Code may also automatically activate it for you when creating or reopening an integrated terminal window; however, such behaviour is not always reliable or consistent, so it is good practice to remember the entries in the table above.
 
-```
-(.venv) D:\some-python-project> pip list
-Package    Version
----------- -------
-pip        23.1.2
-setuptools 65.5.0
-```
+Virtual environments can be created through two main tools: `virtualenv`, a third party library, and `venv`, a standard library module. `virtualenv` preceeds `venv` and offers more features, while `venv` provides only the core functionality (but does not require external dependencies). Some of the most important differences are, roughly in descending order of importance:
 
-We can now install packages easily using either `py -m pip` or `pip`:
+- `virtualenv` can automatically discover arbitrarily installed Python versions and create environments from them, while `venv` can only create an environment from the interpreter it is run from; i.e., running `py -3.10 -m venv` can only create a Python 3.10 environment.
+- `venv` is relatively slow, while `virtualenv` can be extremely fast; see the [technical overview](#technical-overview) below.
+- `virtualenv` will automatically add a `.gitignore` file to the environment directory; `venv` will eventually do so, but only for Python 3.13 onwards (see [python/cpython #83417](https://github.com/python/cpython/issues/83417)).
+- `virtualenv` can be upgraded with `pip`, while `venv` is locked to the release date of the major Python version.
+- `virtualenv` has a much richer API for interacting with it from within Python code, and is much more extendable.
 
-```
-(.venv) D:\some-python-project> pip install numpy
-Collecting numpy
-  Using cached numpy-1.24.3-cp310-cp310-win_amd64.whl (14.8 MB)
-Installing collected packages: numpy
-Successfully installed numpy-1.24.3
+For these reasons, I strongly suggest using `virtualenv`. The first two points are particularly important; this is how tools like `tox` can run tests against all the Python versions you have installed. This is why I recommend having a range of different Python versions installedThe best way to install it is to run `py -3.12 -m pip install virtualenv`, replacing 3.12 with the latest system-wide Python version you have.
 
-(.venv) D:\some-python-project> pip list
-Package    Version
----------- -------
-numpy      1.24.3
-pip        23.1.2
-setuptools 65.5.0
-```
+### Using virtualenv
 
-Virtual environments can be deactivated by running the command `deactivate`, which returns the default Python versions to the system-wide ones. Note that closing a terminal will also require the environment to be reactivated; it is therefore to get into the habit of activating the environment every time you interact with the project.
+`virtualenv` is easy to use. The basic command syntax is:
+
+<pre>virtualenv <i>destination</i> [-p <i>interpreter</i>] [<i>options</i>]</pre>
+
+- <code><i>destination</i></code> is required, and is the folder in which the environment will be installed. As mentioned above, this is typically `.venv` or `.venv`.
+- `-p` can be used to specify a specific <code><i>interpreter</i></code> to use as the base to create the environment from. This can either be the path to a Python interpreter (relative or absolute), or a specifier that identifies the interpreter's implementation, version, and architecture. Further discussion of this is detailed in the [technical overview](#technical-overview) below, but the simplest way is simply to specify something like `3.10`, replacing 3.10 with your desired version. If it is not present, `virtualenv` will use the version of Python it is installed into; this is why I suggest installing it into the latest system-wide version, so that a plain `virtualenv .venv` will use the latest version of Python.
+- Various other <code><i>options</i></code> can also be passed, but it's unlikely that you will need them. See the [virtualenv CLI interface documentation](https://virtualenv.pypa.io/en/latest/cli_interface.html) for a full list of possible arguments.
+
+This means that creating a Python 3.11 environment is as simple as `virtualenv .venv -p 3.11`, and creating a quick environment for testing is just `virtualenv .venv`. Combined with the significant speed increases over `venv`, it becomes extremely trivial to use virtual environments with `virtualenv`.
+
+### Using the venv module
+
+The use of `venv` is similar, but requires launching it as a module from a Python interpreter with the target version.
+
+<pre>py -3.X -m venv <i>destination</i></pre>
+
+As with `virtualenv`, <code><i>destination</i></code> is required and is typically `.venv` or `venv`. `3.X` should be replaced with the desired Python version. For this reason, it's useful to have multiple versions of Python 
+
+Note that as with the rest of this guide, `python` should be substituted for the appropriate `py -3.X` on Windows to use the appropriate Python version. For this reason, it may be useful to multiple versions installed on your system.
+
+The `-m` flag invokes the Python module `venv` (more explanation of this is available in the document about [command line options](/practical-matters/command-line-usage.md)).
 
 ### Using VS Code
 
-The process of creating a virtual environment in VS Code can be accomplished by running the command `Python: Create Environment... > Venv` and then selecting the appropriate system interpreter. If a `requirements.txt` file is present in the workspace, you also have the option to automatically install these dependencies.
+Virtual environments can also be created through VS Code, although I don't recommend it as it is slower and more error prone than `virtualenv` or `venv`. Plus, learning how to create and activate virtual environments "manually" will help resolve probably 90+% of the issues in dealing with virtual environments.
 
-Afterwards, VS Code should automatically select the environment interpreter, and activate the environment when you open a terminal. If it does not, you can always select the correct interpreter by manually locating the Python executable in `.venv\Scripts\python.exe`, and running `.venv\Scripts\activate.ps1` in the terminal (as the default terminal is PowerShell).
+Nevertheless, the process of creating a virtual environment in VS Code can be accomplished by running the command `Python: Create Environment... > Venv` and then selecting the appropriate system interpreter. If a `requirements.txt` file is present in the workspace, you also have the option to automatically install these dependencies.
 
-If you encounter errors while trying to activate the environment related to PowerShell permission issues, see the [VS Code setting](/practical-matters/vs-code-settings) document for more information about the appropriate settings to resolve this.
+Afterwards, VS Code should automatically select the environment interpreter, and activate the environment when you open a terminal. If it does not, you can always select the correct interpreter by manually locating the Python executable in `.venv\Scripts\python.exe`, or activate it manually.
+
+If you encounter errors while trying to activate the environment related to PowerShell permission issues, see the [VS Code setting](/practical-matters/vs-code-settings) document for more information about the appropriate settings change to resolve this.
+
+## Technical overview
+
+Work in progress.
 
 ## Summary
 

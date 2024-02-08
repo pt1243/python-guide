@@ -1,0 +1,9 @@
+## Imports
+
+We first need to (briefly) cover how Python imports modules. When a module is imported, Python first checks to see if it has been already imported, by seeing if it is cached in `sys.modules`. This is a global dictionary that maps from module names (such as `os`) to the actual module objects.
+
+If it is not present, Python then needs to try and find the module using the import protocol. This consists of two key parts: finders, and loaders. A finder will try to find the given module using whatever particular strategy it knows about, and a loader is responsible for executing the module and actually loading it.
+
+If the named module is not already loaded, Python will search `sys.meta_path`, which is a list of meta path finder objects. These are queried, in order, to see if they know how to find and handle the target module. The default `sys.meta_path` has three meta path finders: the first knows how to import built-in modules, which are effectively "hardcoded" into the Python interpreter; the second knows how to handle "frozen" modules, which are essential to interpreter startup, and therefore have statically allocated code objects for better performance (see the [3.11 what's new notes](https://docs.python.org/3/whatsnew/3.11.html#frozen-imports-static-code-objects) for more information); and the third knows how to handle modules from an import path, `sys.path`. This last one may also be referred to as the path based finder.
+
+If the finder knows how to handle the module, it returns a spec object; otherwise, the search continues down the list of the remaining finders. If the list is traversed and no finders are able to handle the module, a `ModuleNotFoundError` is raised. This spec object is beyond the scope of this discussion, but the essential thing to know is that it contains, among other things, a loader which Python will then use to load the module.

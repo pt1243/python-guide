@@ -1,0 +1,11 @@
+overall structure:
+
+- intro to static typing (advantages, tools, ...what else?)
+- type theory
+    - what is a type?
+    - subtype relation and LSP
+    - notation
+    - type vs class
+    - gradual typing
+    - nominal vs structural subtyping
+    - 

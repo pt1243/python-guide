@@ -265,7 +265,34 @@ That's pretty much all there is to it. There is one more caveat though: if a fil
 
 ### How `virtualenv` works
 
-Work in progress.
+**Work in progress.**
+
+Now that we understand how the `pyvenv.cfg` file allows us to create virtual environments, we can look at how `virtualenv` works to set one up. This occurs in two phases: phase 1 discovers a Python interpreter to create a virtual environment from, while phase 2 creates the virtual environment in the specified location.
+
+In phase 1, `virtualenv` will try to find a Python interpreter that matches a given *specifier*. The specifier is the *`interpreter`* argument passed to the `-p` option, and it allows you to specify what type of virtual environment you would like to create. `virtualenv` will always know about one such specifier: the Python interpreter it is currently running from. If `-p` is not passed, this is what it will use when creating the environment.
+
+Otherwise, `virtualenv` will try to find a Python interpreter to satisfy the specifier. The specifier can be a path to a Python interpreter (either absolute or relative), but most of the time, we don't want to bother typing out the full path to the executable each time. Instead, we can also specify the Python implementation, version, and architecture in that order.
+
+- The Python implementation is all alphabetic characters, and may be something like `cpython` or `pypy`. This is optional, and if not provided, defaults to `python`, meaning any implementation.
+- The version is a dot separated version number. You may specify as little as the major version (`3`), but this will usually include the minor version as well, such as `3.9` or `3.12`. The micro version can also be included, such as in `3.8.4`, but as there are normally not any significant changes between micro versions, this is usually overly restrictive.
+- The architecture is either `-32` or `-64` (bit), and is optional; if missing, it defaults to `any`. Again, this is usually overly restrictive, as you're unlikely to run into a 32 bit version of Python nowadays.
+
+So, for example:
+
+- `python3.8.1` would match any implementation, with a version of exactly `3.8.1`, and any architecture.
+- `3` would match any implementation with a major version of `3`, and any architecture.
+- `cpython3` would match a `CPython` implementation with a major version of `3`, and any architecture.
+- `pypy2` would match a `PyPy` implementation with a major version of `2`, and any architecture.
+
+This is normally of the form <code>3.<i>Y</i></code>.
+
+Given the specifier, `virtualenv` will apply one of two strategies depending on the platform. On Windows, it will look into the registry to see if any registered versions match the specification, as specified in [PEP 514](https://peps.python.org/pep-0514/). On other platforms, it will iterate through the folders on the system `PATH` and try to find an interpreter with a name mamtching the specification.
+
+Given the base interpreter to create an environment, phase 2 proceeds with actually creating the environment. This can be broken down further into three sub-steps, which are accomplished using *creators*, *seeders*, and *activators*.
+
+Creators are responsible for either creating the actual directories and files for the virtual environments. There are two creation methods available; the first is the `venv` method. As you might imagine, this delegates creation to the `venv` module. However, this has the downside that `virtualenv` must create a new process to invoke the module, which is especially slow on Windows. The alternative is the `builtin` method - this means that `virtualenv` knows exactly what files to create and can do so itself. The `builtin` creator is an alias to a creator specific to the platform and version, and will be something like `cpython3-win`. If the `builtin` creator is available, `virtualenv` will prefer to use that for performance reasons.
+
+The seeder is responsible for installing 
 
 ## Summary
 

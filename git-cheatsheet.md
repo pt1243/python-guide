@@ -50,7 +50,8 @@ git config --global user.email "<i>&lt;your email address&gt;</i>"
 
 | Task | Command |
 | --- | --- |
-| Switch to a branch | <code>git switch <i>&lt;branch name&gt;</i></code> |
+| Switch to a local branch | <code>git switch <i>&lt;branch name&gt;</i></code> |
+| Switch to a remote branch | <pre>git fetch<br>git switch <i>&lt;branch name&gt;</i></pre>
 | Publish a branch | <code>git push -u origin <i>&lt;branch name&gt;</i></code> | 
 | Create a new branch from `HEAD` | <code>git switch -c <i>&lt;branch name&gt;</i></code> |
 | Rename a branch | <code>git branch -m <i>&lt;new branch name&gt;</i></code> |

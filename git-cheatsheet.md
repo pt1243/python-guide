@@ -6,6 +6,7 @@ This document is intended to be a quick reference for common Git operations and 
 - [Introduction and terminology](#introduction-and-terminology)
 - [Initial setup](#initial-setup)
 - [Clone a repository](#clone-a-repository)
+- [Working with branches](#working-with-branches)
 - [Undoing things](#undoing-things)
   - [Editing the last commit](#editing-the-last-commit)
 
@@ -45,6 +46,16 @@ git config --global user.email "<i>&lt;your email address&gt;</i>"
 | Clone a repository from GitHub | <code>git clone git@<span>github.com:<i>username&gt;</i>/<i>repository&gt;</i></code> |
 | Clone a repository from GitLab | Use `git clone` with the specific `git@...` command provided by GitLab. |
 
+## Working with branches
+
+| Task | Command |
+| --- | --- |
+| Switch to a branch | <code>git switch <i>&lt;branch name&gt;</i></code> |
+| Publish a branch | <code>git push -u origin <i>&lt;branch name&gt;</i></code> | 
+| Create a new branch from `HEAD` | <code>git switch -c <i>&lt;branch name&gt;</i></code> |
+| Rename a branch | <code>git branch -m <i>&lt;new branch name&gt;</i></code> |
+| Delete a branch | <code>git branch -d <i>&lt;branch name&gt;</i></code> |
+| Forcefully delete an unmerged branch<br>**Warning: this will destroy unmerged work** | <code>git branch -D <i>&lt;branch name&gt;</i></code> |
 
 ## Undoing things
 

@@ -47,7 +47,7 @@ git config --global user.email "<i>&lt;your email address&gt;</i>"
 
 | Task | Command |
 | --- | --- |
-| Clone a repository from GitHub | <code>git clone git@<span>github.com:<i>username&gt;</i>/<i>repository&gt;</i></code> |
+| Clone a repository from GitHub | <code>git clone git@<span>github.com:<i>&lt;username&gt;</i>/<i>&lt;repository&gt;</i></code> |
 | Clone a repository from GitLab | Use `git clone` with the specific `git@...` command provided by GitLab. |
 
 Don't forget to `cd` into the *`<repository>`* directory after cloning.

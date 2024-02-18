@@ -59,7 +59,7 @@ Don't forget to `cd` into the *`<repository>`* directory after cloning.
 | Pull remote changes into the local repository | `git pull` |
 | Download changes but don't merge them yet | `git fetch` |
 | See commits that would be added | <pre>git fetch<br>git log HEAD..origin</pre> |
-| Show changes that would be made to files | <pre><git fetch<br>git diff HEAD..origin</pre> | 
+| Show changes that would be made to files | <pre>git fetch<br>git diff HEAD..origin</pre> | 
 
 ## Working with branches
 

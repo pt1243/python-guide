@@ -5,7 +5,9 @@ This document is intended to be a quick reference for common Git operations and 
 **Table of Contents:**
 - [Introduction and terminology](#introduction-and-terminology)
 - [Initial setup](#initial-setup)
-- [Clone a repository](#clone-a-repository)
+- [Bring remote work into a local repository](#bring-remote-work-into-a-local-repository)
+  - [Clone a repository](#clone-a-repository)
+  - [Pulling changes](#pulling-changes)
 - [Working with branches](#working-with-branches)
 - [Undoing things](#undoing-things)
   - [Editing the last commit](#editing-the-last-commit)
@@ -39,22 +41,36 @@ git config --global user.name "<i>&lt;your full name&gt;</i>"
 git config --global user.email "<i>&lt;your email address&gt;</i>"
 </pre>
 
-## Clone a repository
+## Bring remote work into a local repository
+
+### Clone a repository
 
 | Task | Command |
 | --- | --- |
 | Clone a repository from GitHub | <code>git clone git@<span>github.com:<i>username&gt;</i>/<i>repository&gt;</i></code> |
 | Clone a repository from GitLab | Use `git clone` with the specific `git@...` command provided by GitLab. |
 
+Don't forget to `cd` into the *`<repository>`* directory after cloning.
+
+### Pulling changes
+
+| Task | Command |
+| --- | --- |
+| Pull remote changes into the local repository | `git pull` |
+| Download changes but don't merge them yet | `git fetch` |
+| See commits that would be added | <pre>git fetch<br>git log HEAD..origin</pre> |
+| Show changes that would be made to files | <pre><git fetch<br>git diff HEAD..origin</pre> | 
+
 ## Working with branches
 
 | Task | Command |
 | --- | --- |
 | Switch to a local branch | <code>git switch <i>&lt;branch name&gt;</i></code> |
-| Switch to a remote branch | <pre>git fetch<br>git switch <i>&lt;branch name&gt;</i></pre>
+| Switch to a remote branch | <pre>git fetch<br>git switch <i>&lt;branch name&gt;</i></pre> |
+| Switch back to the previous branch | `git switch -` |
 | Publish a branch | <code>git push -u origin <i>&lt;branch name&gt;</i></code> | 
 | Create a new branch from `HEAD` | <code>git switch -c <i>&lt;branch name&gt;</i></code> |
-| Rename a branch | <code>git branch -m <i>&lt;new branch name&gt;</i></code> |
+| Rename the current branch branch | <code>git branch -m <i>&lt;new branch name&gt;</i></code> |
 | Delete a branch | <code>git branch -d <i>&lt;branch name&gt;</i></code> |
 | Forcefully delete an unmerged branch<br>**Warning: this will destroy unmerged work** | <code>git branch -D <i>&lt;branch name&gt;</i></code> |
 

@@ -73,6 +73,7 @@ Don't forget to `cd` into the *`<repository>`* directory after cloning.
 | Rename the current branch | <code>git branch -m <i>&lt;new branch name&gt;</i></code> |
 | Delete a branch | <code>git branch -d <i>&lt;branch name&gt;</i></code> |
 | Forcefully delete an unmerged branch<br>**Warning: this will destroy unmerged changes** | <code>git branch -D <i>&lt;branch name&gt;</i></code> |
+| Remove all deleted remote branches | <code>git fetch --prune</code> |
 
 ## Undoing things
 

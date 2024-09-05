@@ -31,7 +31,7 @@ First set up an SSH key if you have not done so already. I recommend using your 
    2. GitLab: `ssh-add ~/.ssh/id_rsa`
 5. Copy the public key (the entire output of the following command) and add it to your SSH keys in either service.
    1. GitHub: `cat ~/.ssh/id_ed25519.pub`
-   2. GitHub: `cat ~/.ssh/id_rsa.pub`
+   2. GitLab: `cat ~/.ssh/id_rsa.pub`
 6. The first time you use that key to clone a repository, you will get a warning about the authenticity of the host. Enter `yes` to continue.
 
 Next, set your name and email address in your Git config:
